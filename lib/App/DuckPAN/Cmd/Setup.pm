@@ -62,7 +62,7 @@ sub run {
 		print "Password at https://duck.co/: ".$pass."\n" if $pass;
 		if ($name || $email || $user || $pass) {
 			print "\n";
-			if ($self->app->term->ask_yn( prompt => 'Do you wanna use those? ', default => 'y' )) {
+			if ($self->app->get_yn( 'Do you want to use those?', 'y' )) {
 				if ($user && $pass) {
 					print "\nChecking your account on https://duck.co/... ";
 					if ($self->app->checking_dukgo_user($user,$pass)) {
@@ -109,7 +109,7 @@ sub setup_name {
 		$self->name($name);
 	} else {
 		print "We need some kind of name!\n";
-		if ($self->app->term->ask_yn( prompt => 'Wanna try again? ', default => 'y' )) {
+		if ($self->app->get_yn( 'Try again?', 'y' )) {
 			$self->setup_name;
 		} else {
 			print "[ERROR] A name is required to work with DuckPAN\n";
@@ -125,7 +125,7 @@ sub setup_email {
 		$self->email($email);
 	} else {
 		print "No valid email given!\n";
-		if ($self->app->term->ask_yn( prompt => 'Wanna try again? ', default => 'y' )) {
+		if ($self->app->get_yn( 'Try again?', 'y' )) {
 			$self->setup_email;
 		} else {
 			print "[ERROR] An email is required to work with DuckPAN\n";
@@ -145,7 +145,7 @@ sub setup_dukgo {
 		$self->pass($pass);
 	} else {
 		print "failed!\n";
-		if ($self->app->term->ask_yn( prompt => 'Wanna try again? ', default => 'y' )) {
+		if ($self->app->get_yn( 'Try again?', 'y' )) {
 			$self->clear_user if $self->has_user;
 			$self->setup_dukgo;
 		} else {

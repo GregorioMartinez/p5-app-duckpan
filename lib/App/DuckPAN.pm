@@ -15,13 +15,12 @@ use LWP::UserAgent;
 use LWP::Simple;
 use Parse::CPAN::Packages::Fast;
 use File::Temp qw/ :POSIX /;
-use Term::UI;
-use Term::ReadLine;
 use Term::ReadKey;    # For GetTerminalSize
 use Carp;
 use Encode;
 use Perl::Version;
 use Path::Tiny;
+use IO::Prompt::Hooked;
 
 our $VERSION ||= '9.999';
 
@@ -85,14 +84,6 @@ option cache => (
 	predicate => 1,
 );
 
-has term => (
-	is => 'ro',
-	lazy => 1,
-	builder => '_build_term',
-);
-
-sub _build_term { Term::ReadLine->new('duckpan') }
-
 has ia_types => (
 	is => 'ro',
 	lazy => 1,
@@ -154,10 +145,23 @@ sub _build_ia_types {
 }
 
 sub get_reply {
-	my ( $self, $prompt, %params ) = @_;
-	my $return = $self->term->get_reply( prompt => $prompt, %params );
+	# Interface to https://metacpan.org/pod/IO::Prompt::Hooked
+	# Read here for acceptable params: https://metacpan.org/pod/IO::Prompt::Hooked#Description-of-named-parameters
+	my ( $self, $message, @params ) = @_;
+	my $return = prompt( message => $message, @params );
 	Encode::_utf8_on($return);
 	return $return;
+}
+
+sub get_yn {
+	my ( $self, $message, $default ) = @_;
+	my $return = prompt(
+		message => "$message [$default]",
+		default => $default,
+		validate => qr/y(es)?|no?/i,
+		error    => "Invalid input. Please reply with 'y' or 'n'"
+	);
+	return $return =~ m/y(es)?/i;
 }
 
 has http => (
