@@ -119,8 +119,8 @@ sub run {
         $self->app->emit_debug("Perl module versions recently checked, skipping requirements check...");
     }
 
-    my $blocks_loader = $self->app->ddg->blocks_loader(@args);
-    $blocks_loader->();
+    my $blocks_loader = $self->app->ddg->blocks_loading_function(@args);
+    my $blocks = $blocks_loader->();
 
     $self->app->emit_debug("Hostname is: http://" . $self->hostname);
     if ($self->force) {
@@ -142,6 +142,7 @@ sub run {
 
     # Pull files out of cache to be served later by DuckPAN server
     my %web_args = (
+        blocks          => $blocks,
         blocks_loader   => $blocks_loader,
         server_hostname => $self->hostname,
     );
